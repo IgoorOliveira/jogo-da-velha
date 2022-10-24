@@ -1,0 +1,43 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    min-height: 100vh;
+    background-image: linear-gradient(45deg, #11091a, #2f2f4d);
+}
+.box-game{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    width: 40%;
+    height: 60vh;
+}
+.square{
+    cursor: pointer;
+    background: transparent;
+    border-style: dotted;
+    font-size: 5em;
+    color: white;
+    height: 20vh;
+}
+/*Retirar bordas de cima*/
+.square1, .square2, .square3{
+    border-top: none;
+}
+/*Retiradas bordas da esquerda*/
+.square1, .square4, .square7{
+    border-left: none;
+}
+/*Retiradas bordas inferiores*/
+.square7, .square8, .square9{
+    border-bottom: none;
+}
+/*Retirar bordas da direita*/
+.square3, .square6, .square9{
+    border-right: none;
+}
