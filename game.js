@@ -1,5 +1,8 @@
 const squares = document.querySelectorAll(".square");
 const body = document.querySelector("body");
+const popupWrapper = document.querySelector(".popup-wrapper");
+const popup = document.querySelector(".popup")
+const resetButton = document.querySelector(".reset");
 var button;
 const winning_possibilities = [
     ["1", "2", "3"],
@@ -23,14 +26,14 @@ for(const square of squares){
         if(square.innerText !== "" || finishGame) return;
         currentPlayer = "X";
         addContentSquare(currentPlayer, square);
-        checkResult(currentPlayer);
+        verifyResult(currentPlayer);
 
         if(finishGame) return;
-        if(checkAllEmptyPlace().length !== 0){
+        if(verifyAllEmptyPlace().length !== 0){
             currentPlayer = "O"
             const emptySquare = bot(currentPlayer);
             addContentSquare(currentPlayer, emptySquare);
-            checkResult(currentPlayer);
+            verifyResult(currentPlayer);
         }  
     })
 }
@@ -43,7 +46,7 @@ function addContentSquare(currentPlayer, emptySquare){
         filledPlaces[currentPlayer].push(emptySquare.toString());
     }
 }
-function checkResult(currentPlayer){
+function verifyResult(currentPlayer){
     console.log(filledPlaces[currentPlayer])
     let aux = 0;
     for(let y = 0; y < winning_possibilities.length; y++){
@@ -52,27 +55,47 @@ function checkResult(currentPlayer){
                 aux += 1;
                 if(aux == 3){
                     finishGame = true;
-                    restartGame();
-                    return alert(`${currentPlayer} GANHOU!!!`);
+                    stylingWinner(winning_possibilities[y]);
+                    setTimeout(showPopup, 1200, currentPlayer);
+                    return;
                 } 
             }
         }
         aux = 0;
     }
-    if(checkAllEmptyPlace().length === 0){
-        restartGame();
-        return alert("VELHA!!!")
+    if(verifyAllEmptyPlace().length === 0){
+        stylingWinner(winning_possibilities[y]);
+        setTimeout(showPopup, 1200);
+        return;
     }
 }
+function stylingWinner(array){
+    let x = 0;
+    while(x <= 2){
+        squares[array[x] - 1].style.color = "#2f2fbb";
+        x++;
+    }
+}
+function showPopup(currentPlayer){
+    if(currentPlayer !== undefined){
+        document.querySelector(".winner").innerText = `${currentPlayer} GANHOU!!!`
+    }
+    else{
+        document.querySelector(".winner").innerText = `VELHA!!!`
+    }
+    popupWrapper.classList.add("active");
+
+}
+
 function bot(currentPlayer){
     currentPlayer = "O";
-    const positions = numberOfPositionsOccupations(currentPlayer);
+    const positions = numberOfPositionsOccupied(currentPlayer);
     if(positions.length > 0){
         var emptySquare = choosenLocation(positions);
     }
     else{
         currentPlayer = "X";
-        const positions = numberOfPositionsOccupations(currentPlayer);
+        const positions = numberOfPositionsOccupied(currentPlayer);
         if(positions.length > 0){
             var emptySquare = choosenLocation(positions)
         }
@@ -84,7 +107,7 @@ function bot(currentPlayer){
     return emptySquare;  
 }
 //Retorna um objeto com a quantidade de vezes que o simbolo aparece no jogo
-function numberOfPositionsOccupations(currentPlayer){
+function numberOfPositionsOccupied(currentPlayer){
     const counts = {};
     winning_possibilities.forEach(possibilities =>{
         possibilities.forEach(index =>{
@@ -107,7 +130,7 @@ function greaterChanceWinning(counts){
     return occupiesMoreThanTwoPositions;
 }
 //Retorna os quadrados vazios jogo.
-function checkAllEmptyPlace(){
+function verifyAllEmptyPlace(){
     const emptySquare = [...squares].filter(index => index.innerText == "");
     const emptySquareValue = emptySquare.map(element =>{
         return element.value;
@@ -116,7 +139,7 @@ function checkAllEmptyPlace(){
 }
 function choosenLocation(positions){
     let emptySquare;
-    const allEmptySquare = checkAllEmptyPlace();
+    const allEmptySquare = verifyAllEmptyPlace();
     positions.forEach(element =>{
         for(y = 0; y <= 2; y++){
             if((allEmptySquare.includes(element[y]))){
@@ -127,25 +150,23 @@ function choosenLocation(positions){
     return emptySquare || randomMove();
 }
 function randomMove(){
-    const allEmptySquare = checkAllEmptyPlace();
+    const allEmptySquare = verifyAllEmptyPlace();
     do{
         var emptySquare = Math.floor(Math.random() * 10);
     }while(emptySquare == 0 || !allEmptySquare.includes(emptySquare.toString()));
     return emptySquare;
 }
 function restartGame(){
-    button = document.createElement("button");
-    button.innerText = "RESET";
-    button.classList.add("reset")
-    body.appendChild(button);
-    
-    button.addEventListener("click", () =>{
-        finishGame = false;
-        filledPlaces["X"] = [];
-        filledPlaces["O"] = [];
-        for(let y = 0; y < squares.length; y++){
-            squares[y].innerText = "";
-        }
-        button.remove();
-    })
+    finishGame = false;
+    document.querySelector(".winner").innerText = "";
+    filledPlaces["X"] = [];
+    filledPlaces["O"] = [];
+    for(let y = 0; y < squares.length; y++){
+        squares[y].innerText = "";
+        squares[y].style.color = "#fff"
+    }
 }
+resetButton.addEventListener("click", () =>{
+    popupWrapper.classList.remove("active");
+    restartGame();
+});
