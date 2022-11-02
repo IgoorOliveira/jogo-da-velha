@@ -18,17 +18,17 @@ let filledPlaces = {
     X:[], O:[]
 };
 let currentPlayer = "";
-let finishGame = false;
+let gameOver = false;
 
 for(const square of squares){
 
     square.addEventListener("click", () =>{
-        if(square.innerText !== "" || finishGame) return;
+        if(square.innerText !== "" || gameOver) return;
         currentPlayer = "X";
         addContentSquare(currentPlayer, square);
         verifyResult(currentPlayer);
 
-        if(finishGame) return;
+        if(gameOver) return;
         if(verifyAllEmptyPlace().length !== 0){
             currentPlayer = "O"
             const emptySquare = bot(currentPlayer);
@@ -54,8 +54,8 @@ function verifyResult(currentPlayer){
             if(filledPlaces[currentPlayer].includes(winning_possibilities[y][z])){
                 aux += 1;
                 if(aux == 3){
-                    finishGame = true;
-                    stylingWinner(winning_possibilities[y]);
+                    gameOver = true;
+                    stylizeWinningPosition(winning_possibilities[y]);
                     setTimeout(showPopup, 1200, currentPlayer);
                     return;
                 } 
@@ -64,12 +64,11 @@ function verifyResult(currentPlayer){
         aux = 0;
     }
     if(verifyAllEmptyPlace().length === 0){
-        stylingWinner(winning_possibilities[y]);
         setTimeout(showPopup, 1200);
         return;
     }
 }
-function stylingWinner(array){
+function stylizeWinningPosition(array){
     let x = 0;
     while(x <= 2){
         squares[array[x] - 1].style.color = "#2f2fbb";
@@ -157,7 +156,7 @@ function randomMove(){
     return emptySquare;
 }
 function restartGame(){
-    finishGame = false;
+    gameOver = false;
     document.querySelector(".winner").innerText = "";
     filledPlaces["X"] = [];
     filledPlaces["O"] = [];
