@@ -20,16 +20,17 @@ let finishGame = false;
 for(const square of squares){
 
     square.addEventListener("click", () =>{
-        if(square.innerText !== "" || finishGame === true) return;
+        if(square.innerText !== "" || finishGame) return;
         currentPlayer = "X";
         addContentSquare(currentPlayer, square);
         checkResult(currentPlayer);
 
+        if(finishGame) return;
         if(checkAllEmptyPlace().length !== 0){
             currentPlayer = "O"
             const emptySquare = bot(currentPlayer);
             addContentSquare(currentPlayer, emptySquare);
-            checkResult("O");
+            checkResult(currentPlayer);
         }  
     })
 }
