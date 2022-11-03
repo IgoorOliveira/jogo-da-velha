@@ -30,7 +30,7 @@ body{
 .square{
     cursor: pointer;
     background: transparent;
-    border-style: dotted;
+    border: 1.5px solid rgba(0, 0, 0, 0.8);
     font-size: 5em;
     color: white;
     height: 20vh;
