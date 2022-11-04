@@ -4,6 +4,7 @@ const popupWrapper = document.querySelector(".popup-wrapper");
 const popup = document.querySelector(".popup")
 const resetButton = document.querySelector(".reset");
 var button;
+let difficultyGame = "easy";
 const winning_possibilities = [
     ["1", "2", "3"],
     ["4", '5', "6"], 
@@ -21,7 +22,7 @@ let currentPlayer = "";
 let gameOver = false;
 
 for(const square of squares){
-
+    
     square.addEventListener("click", () =>{
         if(square.innerText !== "" || gameOver) return;
         currentPlayer = "X";
@@ -31,7 +32,7 @@ for(const square of squares){
         if(gameOver) return;
         if(verifyAllEmptyPlace().length !== 0){
             currentPlayer = "O"
-            const emptySquare = bot(currentPlayer);
+            const emptySquare = bot(currentPlayer, difficultyGame);
             addContentSquare(currentPlayer, emptySquare);
             verifyResult(currentPlayer);
         }  
@@ -41,13 +42,13 @@ function addContentSquare(currentPlayer, emptySquare){
     if(currentPlayer == "X"){
         emptySquare.innerText = currentPlayer;
         filledPlaces[currentPlayer].push(emptySquare.value.toString());
+        emptySquare.style.color = "rgb(15, 10, 10)"
     }else{
         squares[emptySquare-1].innerText = currentPlayer;
         filledPlaces[currentPlayer].push(emptySquare.toString());
     }
 }
 function verifyResult(currentPlayer){
-    console.log(filledPlaces[currentPlayer])
     let aux = 0;
     for(let y = 0; y < winning_possibilities.length; y++){
         for(let z = 0; z < winning_possibilities[y].length; z++){
@@ -71,38 +72,44 @@ function verifyResult(currentPlayer){
 function stylizeWinningPosition(array){
     let x = 0;
     while(x <= 2){
-        squares[array[x] - 1].style.color = "#2f2fbb";
+        squares[array[x] - 1].style.color = "#2f2faa";
         x++;
     }
 }
 function showPopup(currentPlayer){
     if(currentPlayer !== undefined){
-        document.querySelector(".winner").innerText = `${currentPlayer} GANHOU!!!`
+        document.querySelector(".winner").innerText = currentPlayer;
     }
     else{
-        document.querySelector(".winner").innerText = `VELHA!!!`
+        document.querySelector(".winner").innerText = `VELHA`
     }
     popupWrapper.classList.add("active");
-
 }
 
-function bot(currentPlayer){
-    currentPlayer = "O";
-    const positions = numberOfPositionsOccupied(currentPlayer);
-    if(positions.length > 0){
-        var emptySquare = choosenLocation(positions);
+function bot(currentPlayer, difficulttGame){
+    let emptySquare;
+    if(difficultyGame === "easy"){
+        emptySquare = randomMove()
     }
-    else{
-        currentPlayer = "X";
+    else if(difficultyGame === "hard"){
+        currentPlayer = "O";
         const positions = numberOfPositionsOccupied(currentPlayer);
         if(positions.length > 0){
-            var emptySquare = choosenLocation(positions)
+            emptySquare = choosenLocation(positions, currentPlayer);
         }
         else{
-            currentPlayer = "O"
-            var emptySquare = randomMove();
+            currentPlayer = "X";
+            const positions = numberOfPositionsOccupied(currentPlayer);
+            if(positions.length > 0){
+                emptySquare = choosenLocation(positions, currentPlayer)
+            }
+            else{
+                currentPlayer = "O"
+                emptySquare = randomMove();
+            }
         }
     }
+    
     return emptySquare;  
 }
 //Retorna um objeto com a quantidade de vezes que o simbolo aparece no jogo
@@ -136,8 +143,9 @@ function verifyAllEmptyPlace(){
     })
     return emptySquareValue;
 }
-function choosenLocation(positions){
+function choosenLocation(positions, currentPlayer){
     let emptySquare;
+    console.log(`${currentPlayer} e ${positions}`);
     const allEmptySquare = verifyAllEmptyPlace();
     positions.forEach(element =>{
         for(y = 0; y <= 2; y++){
@@ -146,9 +154,16 @@ function choosenLocation(positions){
             }
         }
     })
-    return emptySquare || randomMove();
+    if(currentPlayer === "O" && emptySquare === undefined){
+        emptySquare = choosenLocation(numberOfPositionsOccupied("X"), "X");
+    }
+    else if(emptySquare === undefined){
+        emptySquare = randomMove()
+    }
+    return emptySquare;
 }
 function randomMove(){
+    console.log("Chamei o randomMove()");
     const allEmptySquare = verifyAllEmptyPlace();
     do{
         var emptySquare = Math.floor(Math.random() * 10);
@@ -157,6 +172,7 @@ function randomMove(){
 }
 function restartGame(){
     gameOver = false;
+    difficultyGame = document.querySelector('input[name = "difficulty"]:checked').value;
     document.querySelector(".winner").innerText = "";
     filledPlaces["X"] = [];
     filledPlaces["O"] = [];
@@ -169,3 +185,4 @@ resetButton.addEventListener("click", () =>{
     popupWrapper.classList.remove("active");
     restartGame();
 });
+
